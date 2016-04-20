@@ -1,0 +1,4 @@
+[00:00:00] Build started
+[00:00:01] git clone -q --branch=master https://github.com/RPGOne/Vader.git C:\projects\vader-c49tm
+[00:00:03] git checkout -qf 060346f70950231ed54b80e1f51629e6690a82ae
+[00:00:03] Specify a project or solution file. The directory does not contain a project or solution file.
