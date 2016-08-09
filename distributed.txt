@@ -1,0 +1,25 @@
+import distributed.joblib
+from distributed import Executor
+from joblib import Parallel, parallel_backend
+from sklearn.grid_search import RandomizedSearchCV
+from sklearn.datasets import load_digits
+from sklearn.svm import SVC
+import numpy as np
+
+digits = load_digits()
+
+e = Executor('compute057:8786')
+print(e)
+
+param_space = {
+    'C': np.logspace(-6, 6, 300),
+    'gamma': np.logspace(-8, 8, 300),
+    'tol': np.logspace(-4, -1, 300),
+    'class_weight': [None, 'balanced'],
+}
+
+model = SVC(kernel='rbf')
+search = RandomizedSearchCV(model, param_space, cv=10, n_iter=1000, verbose=1, n_jobs=40)
+
+with parallel_backend('distributed', scheduler_host='compute057:8786'):
+        search.fit(digits.data, digits.target)

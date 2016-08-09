@@ -1,0 +1,38 @@
+from distributed import Executor
+executor = Executor('127.0.0.1:8786')
+def inc(x):
+        return x + 1
+
+x = executor.submit(inc, 10)
+x
+<Future - key: inc-e4853cffcc2f51909cdb69d16dacd1a5>
+type(x)
+Future
+y = executor.submit(inc, x)
+x.result()
+2
+executor.gather([x, y])
+(2, 3)
+from distributed import as_completed
+seq = as_completed([x, y])
+next(seq).result()
+2
+next(seq).result()
+3
+L = executor.map(inc, range(10))
+dsk = {'x': 1, 'y': (inc, 'x')}
+executor.get(dsk, 'y')
+2
+import dask.array as da
+x = da.random.random(1000000000, chunks=(1000000,))
+x.sum().compute()  # use local threads
+499999359.23511785
+x.sum().compute(get=executor.get)  # use distributed cluster
+499999359.23511785
+type(x)
+dask.array.Array
+type(df)
+dask.dataframe.DataFrame
+
+x_future, df_future = executor.compute(x, df)
+executor.restart()
