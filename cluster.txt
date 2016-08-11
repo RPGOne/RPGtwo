@@ -1,0 +1,31 @@
+from sklearn.externals.joblib import Parallel, parallel_backend, register_parallel_backend
+from sklearn.grid_search import RandomizedSearchCV
+from sklearn.datasets import load_digits
+from sklearn.svm import SVC
+import numpy as np
+import ipyparallel as ipp
+from ipyparallel import Client
+from ipyparallel.joblib import IPythonParallelBackend
+
+digits = load_digits()
+
+c = Client(profile='myprofile')
+print(c.ids)
+bview = c.load_balanced_view()
+
+# this is taken from the ipyparallel source code
+register_parallel_backend('ipyparallel', lambda : IPythonParallelBackend(view=bview))
+
+param_space = {
+    'C': np.logspace(-6, 6, 300),
+    'gamma': np.logspace(-8, 8, 300),
+    'tol': np.logspace(-4, -1, 300),
+    'class_weight': [None, 'balanced'],
+}
+
+model = SVC(kernel='rbf')
+search = RandomizedSearchCV(model, param_space, cv=10, n_iter=1000, verbose=1, n_jobs=-1)
+
+
+with parallel_backend('ipyparallel'):
+        search.fit(digits.data, digits.target)
