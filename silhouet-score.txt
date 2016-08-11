@@ -1,0 +1,9 @@
+import numpy as np
+from sklearn.metrics.cluster import silhouette_score
+n_features = 100
+for n_samples in [10000, 1000, 100]:
+    for n_labels in [4, 6, 100]:
+        print('n_features', n_features, 'n_samples', n_samples, 'n_labels', n_labels)
+        X = np.random.rand(n_samples, n_features)
+        y = np.random.randint(n_labels, size=n_samples)
+        %timeit silhouette_score(X, y)
